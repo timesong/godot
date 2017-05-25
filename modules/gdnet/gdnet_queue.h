@@ -32,14 +32,18 @@ public:
 	}
 	
 	void push(T* item) {
-		ERR_FAIL_COND(is_full());
+		if (is_full()) {
+			return;
+		}
 				
 		items[write_pos] = item;
 		write_pos = (write_pos + 1) % SIZE;
 	}
 
 	T* pop() {
-		ERR_FAIL_COND_V(is_empty(), NULL);
+		if (is_empty()) {
+			return NULL;
+		}
 		
 		T* item = items[read_pos];
 		read_pos = (read_pos + 1) % SIZE;
