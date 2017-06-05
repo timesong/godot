@@ -9,7 +9,7 @@ if (env['platform'] == 'windows'):
 
 local_env = env.Clone()
 
-if (env['platform'] == 'x11' or env['platform'] == 'server' or env['platform'] == 'osx'):
+if env['platform'] in ('x11', 'server', 'osx'):
 	local_env.Append(CPPDEFINES = '-DHAS_FCNTL=1')
 	local_env.Append(CPPDEFINES = '-DHAS_POLL=1')
 	local_env.Append(CPPDEFINES = '-DHAS_GETNAMEINFO=1')
@@ -20,6 +20,25 @@ if (env['platform'] == 'x11' or env['platform'] == 'server' or env['platform'] =
 	local_env.Append(CPPDEFINES = '-DHAS_INET_NTOP=1')
 	local_env.Append(CPPDEFINES = '-DHAS_MSGHDR_FLAGS=1')
 	local_env.Append(CPPDEFINES = '-DHAS_SOCKLEN_T=1')
-	
+
+if env['platform'] in ('android', ):
+	local_env.Append(CPPDEFINES = '-DHAS_SOCKLEN_T=1')
+
 local_env.Append(CPPPATH=['include'])
-local_env.add_source_files(env.modules_sources,"*.c")
+
+enet_sources = [
+	"callbacks.c",
+	"compress.c",
+	"host.c",
+	"list.c",
+	"packet.c",
+	"peer.c",
+	"protocol.c",
+]
+
+if (env['platform'] == 'windows'):
+	enet_sources.append("win32.c")
+else:
+	enet_sources.append("unix.c")
+
+local_env.add_source_files(env.modules_sources, enet_sources)
