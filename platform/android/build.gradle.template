@@ -39,8 +39,6 @@ android {
 		exclude 'META-INF/NOTICE'
 	}
 	defaultConfig {
-		minSdkVersion 14
-		targetSdkVersion 23
 		$$GRADLE_DEFAULT_CONFIG$$
 	}
 	// Both signing and zip-aligning will be done at export time
@@ -58,7 +56,6 @@ android {
 				'res'
 				$$GRADLE_RES_DIRS$$  
 			]
-		//            libs.srcDirs = ['libs']
 			aidl.srcDirs = [
 				'aidl'
 				$$GRADLE_AIDL_DIRS$$   
@@ -66,10 +63,6 @@ android {
 			assets.srcDirs = [
 				'assets'
 				$$GRADLE_ASSET_DIRS$$
-			]
-			jniLibs.srcDirs = [
-				'libs'
-				$$GRADLE_JNI_DIRS$$
 			]
 		}
 		debug.jniLibs.srcDirs = [
