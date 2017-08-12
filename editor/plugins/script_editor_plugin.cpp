@@ -731,6 +731,9 @@ void ScriptEditor::_close_tab(int p_idx) {
 		apply_scripts();
 	}
 
+	// roll back to previous tab
+	_history_back();
+
 	//remove from history
 	history.resize(history_pos + 1);
 
@@ -2317,6 +2320,9 @@ void ScriptEditor::set_window_layout(Ref<ConfigFile> p_layout) {
 	for (int i = 0; i < helps.size(); i++) {
 
 		String path = helps[i];
+		if (path == "") { // invalid, skip
+			continue;
+		}
 		_help_class_open(path);
 	}
 

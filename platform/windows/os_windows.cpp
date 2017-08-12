@@ -511,8 +511,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 						if (motion < 0) {
 							mb.button_index = BUTTON_WHEEL_LEFT;
 							mb.factor = fabs((double)motion / (double)WHEEL_DELTA);
-						}
-						else {
+						} else {
 							mb.button_index = BUTTON_WHEEL_RIGHT;
 							mb.factor = fabs((double)motion / (double)WHEEL_DELTA);
 						}
@@ -550,9 +549,6 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 					mb.y = old_y;
 				}
 
-				mb.global_x = mb.x;
-				mb.global_y = mb.y;
-
 				if (uMsg != WM_MOUSEWHEEL) {
 					if (mb.pressed) {
 
@@ -576,6 +572,9 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 					mb.x = coords.x;
 					mb.y = coords.y;
 				}
+
+				mb.global_x = mb.x;
+				mb.global_y = mb.y;
 
 				if (main_loop) {
 					input->parse_input_event(event);
@@ -810,7 +809,13 @@ void OS_Windows::process_key_events() {
 				k.mod = ke.mod_state;
 				k.pressed = (ke.uMsg == WM_KEYDOWN);
 
-				k.scancode = KeyMappingWindows::get_keysym(ke.wParam);
+				if ((ke.lParam & (1 << 24)) && (ke.wParam == VK_RETURN)) {
+					// Special case for Numpad Enter key
+					k.scancode = KEY_ENTER;
+				} else {
+					k.scancode = KeyMappingWindows::get_keysym(ke.wParam);
+				}
+
 				if (i + 1 < key_event_pos && key_event_buffer[i + 1].uMsg == WM_CHAR)
 					k.unicode = key_event_buffer[i + 1].wParam;
 				if (k.unicode && gr_mem) {

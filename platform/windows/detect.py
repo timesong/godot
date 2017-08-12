@@ -114,7 +114,7 @@ def can_build():
 
     if (os.name == "nt"):
         # building natively on windows!
-        if (os.getenv("VSINSTALLDIR")):
+        if (os.getenv("VCINSTALLDIR")):
             return True
         else:
             print("\nMSVC not detected, attempting Mingw.")
@@ -147,7 +147,7 @@ def can_build():
         if (os.getenv("MINGW64_PREFIX")):
             mingw64 = os.getenv("MINGW64_PREFIX")
 
-        test = "gcc --version &>/dev/null"
+        test = "gcc --version > /dev/null 2>&1"
         if (os.system(mingw + test) == 0 or os.system(mingw64 + test) == 0 or os.system(mingw32 + test) == 0):
             return True
 
@@ -164,7 +164,7 @@ def get_opts():
         mingw32 = "i686-w64-mingw32-"
         mingw64 = "x86_64-w64-mingw32-"
 
-        if os.system(mingw32 + "gcc --version &>/dev/null") != 0:
+        if os.system(mingw32 + "gcc --version > /dev/null 2>&1") != 0:
             mingw32 = mingw
 
     if (os.getenv("MINGW32_PREFIX")):
@@ -214,7 +214,7 @@ def configure(env):
     winver = "0x0600" # Windows Vista is the minimum target for windows builds
 
     env['is_mingw'] = False
-    if (os.name == "nt" and os.getenv("VSINSTALLDIR") != None):
+    if (os.name == "nt" and os.getenv("VCINSTALLDIR")):
         # build using visual studio
         env['ENV']['TMP'] = os.environ['TMP']
         env.Append(CPPPATH=['#platform/windows/include'])
@@ -330,18 +330,6 @@ def configure(env):
             env.Append(LINKFLAGS=['-static'])
             mingw_prefix = env["mingw_prefix_64"]
 
-        nulstr = ""
-
-        if (os.name == "posix"):
-            nulstr = ">/dev/null"
-        else:
-            nulstr = ">nul"
-
-        # if os.system(mingw_prefix+"gcc --version"+nulstr)!=0:
-            # #not really super consistent but..
-            # print("Can't find Windows compiler: "+mingw_prefix)
-            # sys.exit(255)
-
         if (env["target"] == "release"):
 
             env.Append(CCFLAGS=['-msse2'])
@@ -391,7 +379,7 @@ def configure(env):
         env['is_mingw'] = True
         env.Append(BUILDERS={'RES': env.Builder(action=build_res_file, suffix='.o', src_suffix='.rc')})
 
-    env.Append(BUILDERS={'GLSL120': env.Builder(action=methods.build_legacygl_headers, suffix='glsl.h', src_suffix='.glsl')})
-    env.Append(BUILDERS={'GLSL': env.Builder(action=methods.build_glsl_headers, suffix='glsl.h', src_suffix='.glsl')})
-    env.Append(BUILDERS={'HLSL9': env.Builder(action=methods.build_hlsl_dx9_headers, suffix='hlsl.h', src_suffix='.hlsl')})
-    env.Append(BUILDERS={'GLSL120GLES': env.Builder(action=methods.build_gles2_headers, suffix='glsl.h', src_suffix='.glsl')})
+    env.Append(BUILDERS={'GLSL120': env.Builder(action=methods.build_legacygl_headers, suffix='glsl.gen.h', src_suffix='.glsl')})
+    env.Append(BUILDERS={'GLSL': env.Builder(action=methods.build_glsl_headers, suffix='glsl.gen.h', src_suffix='.glsl')})
+    env.Append(BUILDERS={'HLSL9': env.Builder(action=methods.build_hlsl_dx9_headers, suffix='hlsl.gen.h', src_suffix='.hlsl')})
+    env.Append(BUILDERS={'GLSL120GLES': env.Builder(action=methods.build_gles2_headers, suffix='glsl.gen.h', src_suffix='.glsl')})

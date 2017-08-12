@@ -20,20 +20,14 @@ def can_build():
     if sys.platform == "darwin":
         return False  # no x11 on mac for now
 
-    errorval = os.system("pkg-config --version > /dev/null")
-
-    if (errorval):
+    x11_error = os.system("pkg-config --version > /dev/null")
+    if (x11_error):
         print("pkg-config not found.. x11 disabled.")
         return False
 
     x11_error = os.system("pkg-config x11 --modversion > /dev/null ")
     if (x11_error):
         print("X11 not found.. x11 disabled.")
-        return False
-
-    ssl_error = os.system("pkg-config openssl --modversion > /dev/null ")
-    if (ssl_error):
-        print("OpenSSL not found.. x11 disabled.")
         return False
 
     x11_error = os.system("pkg-config xcursor --modversion > /dev/null ")
@@ -244,10 +238,10 @@ def configure(env):
 
     import methods
 
-    env.Append(BUILDERS={'GLSL120': env.Builder(action=methods.build_legacygl_headers, suffix='glsl.h', src_suffix='.glsl')})
-    env.Append(BUILDERS={'GLSL': env.Builder(action=methods.build_glsl_headers, suffix='glsl.h', src_suffix='.glsl')})
-    env.Append(BUILDERS={'GLSL120GLES': env.Builder(action=methods.build_gles2_headers, suffix='glsl.h', src_suffix='.glsl')})
-    #env.Append( BUILDERS = { 'HLSL9' : env.Builder(action = methods.build_hlsl_dx9_headers, suffix = 'hlsl.h',src_suffix = '.hlsl') } )
+    env.Append(BUILDERS={'GLSL120': env.Builder(action=methods.build_legacygl_headers, suffix='glsl.gen.h', src_suffix='.glsl')})
+    env.Append(BUILDERS={'GLSL': env.Builder(action=methods.build_glsl_headers, suffix='glsl.gen.h', src_suffix='.glsl')})
+    env.Append(BUILDERS={'GLSL120GLES': env.Builder(action=methods.build_gles2_headers, suffix='glsl.gen.h', src_suffix='.glsl')})
+    #env.Append( BUILDERS = { 'HLSL9' : env.Builder(action = methods.build_hlsl_dx9_headers, suffix = 'hlsl.gen.h',src_suffix = '.hlsl') } )
 
     if (env["use_static_cpp"] == "yes"):
         env.Append(LINKFLAGS=['-static-libstdc++'])

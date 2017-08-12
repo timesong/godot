@@ -143,12 +143,12 @@ static const char *globals_renames[][2] = {
 	/* [physics_2d] */
 	{ "physics_2d/thread_model", "physics/2d/thread_model" },
 	//{ "physics_2d/motion_fix_enabled", "" },
-	{ "physics_2d/sleep_threashold_linear", "physics/2d/sleep_threshold_linear" }, // FIXME: Typo in 2.1 and master, fix in master
+	{ "physics_2d/sleep_threashold_linear", "physics/2d/sleep_threshold_linear" },
 	{ "physics_2d/sleep_threshold_angular", "physics/2d/sleep_threshold_angular" },
 	{ "physics_2d/time_before_sleep", "physics/2d/time_before_sleep" },
 	{ "physics_2d/bp_hash_table_size", "physics/2d/bp_hash_table_size" },
 	{ "physics_2d/cell_size", "physics/2d/cell_size" },
-	{ "physics_2d/large_object_surface_treshold_in_cells", "physics/2d/large_object_surface_threshold_in_cells" }, // FIXME: Typo in 2.1 and master, fix in master
+	{ "physics_2d/large_object_surface_treshold_in_cells", "physics/2d/large_object_surface_threshold_in_cells" },
 	{ "physics_2d/default_gravity", "physics/2d/default_gravity" },
 	{ "physics_2d/default_gravity_vector", "physics/2d/default_gravity" },
 	{ "physics_2d/default_linear_damp", "physics/2d/default_linear_damp" },
@@ -365,29 +365,18 @@ static const char *prop_renames[][2] = {
 	{ "root/root", "root_node" },
 	{ "playback/process_mode", "playback_process_mode" },
 	{ "stream/stream", "stream" },
-	{ "stream/play", "play" },
+	{ "stream/play", "playing" },
 	{ "stream/loop", "loop" },
 	{ "stream/volume_db", "volume_db" },
+	{ "stream/autoplay", "autoplay" },
+	{ "stream/paused", "paused" },
+	{ "stream/loop_restart_time", "loop_restart_time" },
+	{ "stream/buffering_ms", "buffering_ms" },
 	{ "stream/pitch_scale", "pitch_scale" },
 	{ "stream/tempo_scale", "tempo_scale" },
-	{ "stream/autoplay", "autoplay" },
-	{ "stream/paused", "paused" },
-	{ "stream/stream", "stream" },
-	{ "stream/play", "play" },
-	{ "stream/loop", "loop" },
-	{ "stream/volume_db", "volume_db" },
-	{ "stream/autoplay", "autoplay" },
-	{ "stream/paused", "paused" },
-	{ "stream/loop_restart_time", "loop_restart_time" },
-	{ "stream/buffering_ms", "buffering_ms" },
-	{ "stream/stream", "stream" },
-	{ "stream/play", "play" },
-	{ "stream/loop", "loop" },
-	{ "stream/volume_db", "volume_db" },
-	{ "stream/autoplay", "autoplay" },
-	{ "stream/paused", "paused" },
-	{ "stream/loop_restart_time", "loop_restart_time" },
-	{ "stream/buffering_ms", "buffering_ms" },
+	{ "stream/audio_track", "audio_track" },
+	{ "stream/autoplay", "stream_autoplay" },
+	{ "stream/paused", "stream_paused" },
 	{ "window/title", "window_title" },
 	{ "dialog/text", "dialog_text" },
 	{ "dialog/hide_on_ok", "dialog_hide_on_ok" },
@@ -438,15 +427,10 @@ static const char *prop_renames[][2] = {
 	{ "texture/under", "texture_under" },
 	{ "texture/over", "texture_over" },
 	{ "texture/progress", "texture_progress" },
-	{ "mode", "fill_mode" },
+	//{ "mode", "fill_mode" }, breaks tilemap :\
 	{ "radial_fill/initial_angle", "radial_initial_angle" },
 	{ "radial_fill/fill_degrees", "radial_fill_degrees" },
 	{ "radial_fill/center_offset", "radial_center_offset" },
-	{ "stream/audio_track", "audio_track" },
-	{ "stream/stream", "stream" },
-	{ "stream/volume_db", "volume_db" },
-	{ "stream/autoplay", "stream_autoplay" },
-	{ "stream/paused", "stream_paused" },
 	{ "font/size", "size" },
 	{ "extra_spacing/top", "extra_spacing_top" },
 	{ "extra_spacing/bottom", "extra_spacing_bottom" },
@@ -475,22 +459,25 @@ static const char *prop_renames[][2] = {
 	{ "cell/center_y", "cell_center_y" },
 	{ "cell/center_z", "cell_center_z" },
 	{ "cell/scale", "cell_scale" },
+	{ "region", "region_enabled" },
 	{ NULL, NULL }
 };
 
 static const char *type_renames[][2] = {
-	{ "SpatialPlayer", "Spatial" },
-	{ "SpatialSamplePlayer", "Spatial" },
-	{ "SpatialStreamPlayer", "Spatial" },
-	{ "Particles", "Spatial" },
+	{ "StreamPlayer", "AudioStreamPlayer" },
+	{ "SpatialSamplePlayer", "AudioStreamPlayer3D" },
+	{ "SpatialStreamPlayer", "AudioStreamPlayer3D" },
 	{ "SamplePlayer", "Node" },
-	{ "SamplePlayer2D", "Node2D" },
+	{ "SamplePlayer2D", "AudioStreamPlayer2D" },
 	{ "SoundPlayer2D", "Node2D" },
-	{ "StreamPlayer2D", "Node2D" },
-	{ "Particles2D", "Node2D" },
 	{ "SampleLibrary", "Resource" },
 	{ "TextureFrame", "TextureRect" },
+	{ "Patch9Frame", "NinePatchRect" },
 	{ "FixedMaterial", "SpatialMaterial" },
+	{ "ColorRamp", "Gradient" },
+	{ "CanvasItemShader", "Shader" },
+	{ "CanvasItemMaterial", "ShaderMaterial" },
+	{ "TestCube", "MeshInstance" },
 	{ NULL, NULL }
 };
 
@@ -510,6 +497,7 @@ static const char *signal_renames[][2] = {
 	{ "modal_close", "modal_closed" },
 	{ "enter_tree", "tree_entered" },
 	{ "exit_tree", "tree_exited" },
+	{ "input_event", "gui_input" },
 	{ NULL, NULL }
 };
 
@@ -539,6 +527,19 @@ void EditorExportGodot3::_rename_properties(const String &p_type, List<ExportDat
 		// TODO: Make sure this doesn't break 3D rotations
 		if (E->get().name == "rotation_deg") {
 			E->get().value = E->get().value.operator real_t() * -1.0;
+		}
+
+		// Anchors changed from Begin,End,Ratio,Center to Begin,End,Center
+		if (E->get().name.begins_with("anchor_")) {
+			switch (E->get().value.operator int()) {
+				case 0: // Begin
+				case 1: // End
+					break;
+				case 2: // Ratio
+					E->get().value = 0;
+				case 3: // Center
+					E->get().value = 2;
+			}
 		}
 	}
 }
@@ -1162,7 +1163,7 @@ Error EditorExportGodot3::_get_property_as_text(const Variant &p_variant, String
 		} break;
 		case Variant::REAL_ARRAY: {
 
-			p_string += ("PoolFloatArray( ");
+			p_string += ("PoolRealArray( ");
 			DVector<real_t> data = p_variant;
 			int len = data.size();
 			DVector<real_t>::Read r = data.read();
@@ -1316,6 +1317,14 @@ void EditorExportGodot3::_save_text(const String &p_path, ExportData &resource) 
 			String prop;
 			_get_property_as_text(resource.nodes[i].instance, prop);
 			node_txt += " instance=" + prop + "";
+		}
+
+		if (!resource.nodes[i].groups.empty()) {
+			node_txt += " groups=[\n";
+			for (int j = 0; j < resource.nodes[i].groups.size(); j++) {
+				node_txt += "\"" + resource.nodes[i].groups[j] + "\",\n";
+			}
+			node_txt += "]";
 		}
 
 		node_txt += "]\n";
@@ -1965,7 +1974,7 @@ Error EditorExportGodot3::export_godot3(const String &p_path) {
 	List<String> files;
 	_find_files(EditorFileSystem::get_singleton()->get_filesystem(), &files);
 
-	EditorProgress progress("exporting", "Exporting Godot 3.0", files.size());
+	EditorProgress progress("exporting", "Exporting the project to Godot 3.0", files.size());
 
 	//find XML resources
 
